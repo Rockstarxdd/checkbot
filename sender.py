@@ -3,9 +3,9 @@ from pyrogram.errors import FloodWait
 import asyncio, os
 
 # ⚙️ 𝐂𝐨𝐧𝐟𝐢𝐠 𝐚𝐫𝐞𝐚 - यहां अपनी डिटेल डालो 👇
-api_id = 1234567  # 📝 API ID
-api_hash = "api_hash_here"  # 🔑 API Hash
-forward_channel = -1001234567890  # 📢 Channel/User ID जहां ✅ वाले भेजने हैं
+api_id = 21344128  # 📝 API ID
+api_hash = "036b96696609bae556a1baee829d82fe"  # 🔑 API Hash
+forward_channel = -1002620257061  # 📢 Channel/User ID जहां ✅ वाले भेजने हैं
 time_interval = 20  # ⏳ डिफ़ॉल्ट टाइम इंटरवल (सेकंड्स)
 
 app = Client("session", api_id, api_hash)
