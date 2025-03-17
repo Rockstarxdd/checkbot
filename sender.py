@@ -3,8 +3,8 @@ from pyrogram.errors import FloodWait
 import asyncio
 
 # ---------CONFIG----------
-api_id = 1234567             # api_id yahan
-api_hash = "api_hash_here"   # api_hash yahan
+api_id = 21344128             # api_id yahan
+api_hash = "036b96696609bae556a1baee829d82fe"   # api_hash yahan
 target_chats = ["@Alise_xD_bot", "@dopayu_bot"]  # multiple chats/usernames
 time_interval = 10           # seconds interval
 # --------------------------
