@@ -4,10 +4,10 @@ import asyncio
 import os
 
 # --------- CONFIG CLEARLY SET KAR ----------
-api_id = 1234567
-api_hash = "api_hash_here"
-target_chats = ["@user1", "@user2"]
-forward_channel = "@your_forward_channel"
+api_id = 21344128
+api_hash = "036b96696609bae556a1baee829d82fe"
+target_chats = ["@Alise_xD_bot", "@dopayu_bot"]
+forward_channel = "@vvgccdd345s566fmjh787g"
 time_interval = 20
 emoji = "✅"
 # --------------------------------------------
