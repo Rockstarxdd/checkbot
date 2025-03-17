@@ -1,106 +1,86 @@
 from pyrogram import Client, filters
-from pyrogram.errors import FloodWait
 import asyncio, os
 
-# ⚙️ 𝐂𝐨𝐧𝐟𝐢𝐠 𝐚𝐫𝐞𝐚 - यहां अपनी डिटेल डालो 👇
-api_id = 21344128  # 📝 API ID
-api_hash = "036b96696609bae556a1baee829d82fe"  # 🔑 API Hash
-forward_channel = -1002620257061  # 📢 Channel/User ID जहां ✅ वाले भेजने हैं
-time_interval = 20  # ⏳ डिफ़ॉल्ट टाइम इंटरवल (सेकंड्स)
+# 🔥 Tera Mast Config 🔥
+api_id = 21344128
+api_hash = "036b96696609bae556a1baee829d82fe"
+forward_channel = -1002620257061
+time_interval = 20
 
 app = Client("session", api_id, api_hash)
-sending_active = True  # ✅ Sending state manage karne ke liye
+is_running = True
 
-# ⏰ टाइम चेंज करने की कमांड
+# ⏰ Timer Badalne ka jugaad
 @app.on_message(filters.me & filters.regex(r'^\.time (\d+)$'))
-async def change_timer(_, message):
+async def change_timer(_, m):
     global time_interval
-    time_interval = int(message.matches[0].group(1))
-    await message.reply(f"⏱ टाइम बदल दिया भाई! अब हर कार्ड के बीच {time_interval}s लगेगा। ✅")
+    time_interval = int(m.matches[0].group(1))
+    await m.reply(f"⏱ Bhai, ab har {time_interval} second mein bhejunga! 🥳")
 
-# 🛑 रोकने की कमांड
-@app.on_message(filters.me & filters.command("stop", prefixes="."))
-async def stop_sending(_, message):
-    global sending_active
-    sending_active = False
-    await message.reply("⛔ ठीक है भाई! Sending रोक दी है मैंने। ✋🙂")
+# 🛑 Sending rokne ka jugaad
+@app.on_message(filters.me & filters.command("stop", "."))
+async def stop_sending(_, m):
+    global is_running
+    is_running = False
+    await m.reply("✋ Arre bhai ruk gaya mai, shanti rakh! 🥹")
 
-# 📁 फाइल से कार्ड्स भेजना
+# 📂 File se cards fenkne ka feature
 @app.on_message(filters.me & filters.document & filters.caption & filters.regex(r'^/'))
-async def send_from_file(client, message):
-    global sending_active
-    sending_active = True
-    command = message.caption.strip()
-    file_path = await message.download()
-    chat_id = message.chat.id
+async def file_se_bhejo(c, m):
+    global is_running
+    cmd = m.caption.strip()
+    chat = m.chat.id
+    path = await m.download()
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        cards = [line.strip() for line in file if line.strip()]
+    with open(path, 'r', encoding='utf-8') as f:
+        cards = [l.strip() for l in f if l.strip()]
 
     if not cards:
-        await message.reply("❌ भाई! ये फ़ाइल तो खाली है। 🤷‍♂️")
-        os.remove(file_path)
+        await m.reply("📂 Bhai empty file kyu de raha hai? 😒")
+        os.remove(path)
         return
 
-    await message.reply(f"🚀 भाई, `{command}` कमांड के साथ {len(cards)} कार्ड्स भेज रहा हूं! 🃏🔥 हर {time_interval}s बाद।")
+    is_running = True
+    await m.reply(f"🚀 Bhai, '{cmd}' command ke sath {len(cards)} cards ki barish hogi ab! 💸")
 
     for card in cards:
-        if not sending_active:
-            break
-        text = f"{command} {card}"
-        try:
-            await client.send_message(chat_id, text)
-        except FloodWait as e:
-            await asyncio.sleep(e.value)
-            await client.send_message(chat_id, text)
+        if not is_running: break
+        await c.send_message(chat, f"{cmd} {card}")
         await asyncio.sleep(time_interval)
 
-    final_msg = "✅ सारे कार्ड्स भेज दिए गए भाई! 🎉" if sending_active else "🛑 तूने भेजना रोक दिया था भाई! ✋🙂"
-    await message.reply(final_msg)
-    os.remove(file_path)
-    sending_active = True
+    msg = "✅ Kaam khatam bhai jaan! 🎉😎" if is_running else "⛔ Bhai tu ne rok diya beech mein! 🙄"
+    await m.reply(msg)
+    is_running = True
+    os.remove(path)
 
-# 🃏 टेक्स्ट से कार्ड्स भेजना (only "/" वाली कमांड)
+# 💬 Direct message se cards
 @app.on_message(filters.me & filters.text & filters.regex(r'^/'))
-async def send_text_cards(client, message):
-    global sending_active
-    sending_active = True
-    chat_id = message.chat.id
-    lines = message.text.strip().split("\n")
+async def direct_bhejo(c, m):
+    global is_running
+    chat = m.chat.id
+    lines = m.text.split("\n")
+    if len(lines) < 2: return
 
-    if len(lines) < 2:
-        return
+    cmd, cards = lines[0], lines[1:]
+    is_running = True
 
-    command = lines[0].strip()
-    cards = lines[1:]
-
-    await message.reply(f"🚀 भाई, `{command}` के साथ {len(cards)} कार्ड्स भेज रहा हूं! 🎴 हर {time_interval}s बाद।")
+    await m.reply(f"🚀 Bhai '{cmd}' laga ke {len(cards)} cards udaane wala hu, ready ho ja! 🤩")
 
     for card in cards:
-        if not sending_active:
-            break
-        text = f"{command} {card}"
-        try:
-            await client.send_message(chat_id, text)
-        except FloodWait as e:
-            await asyncio.sleep(e.value)
-            await client.send_message(chat_id, text)
+        if not is_running: break
+        await c.send_message(chat, f"{cmd} {card}")
         await asyncio.sleep(time_interval)
 
-    final_msg = "✅ सारे कार्ड्स भेज दिए गए भाई! 🎉" if sending_active else "🛑 तूने भेजना रोक दिया था भाई! ✋🙂"
-    await message.reply(final_msg)
-    sending_active = True
+    msg = "✅ Kaam ho gaya bhai! 🥳" if is_running else "⛔ Sending rok diya tune, kya yaar! 🤨"
+    await m.reply(msg)
+    is_running = True
 
-# ✅ वाले हिट्स फॉरवर्ड करना
-@app.on_message(filters.incoming & filters.text & filters.regex("✅"))
-async def forward_hits(client, message):
-    try:
-        await message.forward(forward_channel)
-        print(f"🔄 Forwarded: {message.text}")
-    except FloodWait as e:
-        await asyncio.sleep(e.value)
-        await message.forward(forward_channel)
+# ✅ Edited Reply wale hits forward
+@app.on_edited_message(filters.incoming & filters.text & filters.regex("✅"))
+async def forward_hits(c, m):
+    if m.reply_to_message and m.reply_to_message.from_user.is_self:
+        await m.forward(forward_channel)
+        print(f"💰 Hit pakda aur forward kiya: {m.text}")
 
-# 🚀 स्टार्ट मेसेज
-print("🤖✨ तेरा मॉडर्न Userbot तैयार है भाई! 🚀")
+print("🤖 Userbot ready hai mere bhai! Macha de! 🔥🚀")
 app.run()
