@@ -2,7 +2,7 @@ from pyrogram import Client, filters
 import asyncio, os
 
 # 🔥 Tera Mast Config 🔥
-api_id = 6585119086
+api_id = 3947352
 api_hash = "d3865bffdb14c55f6585119086c5948d"
 forward_channel = -1002620257061
 time_interval = 20
